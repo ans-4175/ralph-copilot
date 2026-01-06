@@ -2,7 +2,7 @@
 
 ## About Ralph
 
-Ralph is a small runner around **GitHub Copilot CLI (standalone)** inspired by the“Ralph Wiggum” technique: run a coding agent from a clean slate, over and over, until a stop condition is met.
+Ralph is a small runner around **GitHub Copilot CLI (standalone)** inspired by [the“Ralph Wiggum” technique](https://www.humanlayer.dev/blog/brief-history-of-ralph): run a coding agent from a clean slate, over and over, until a stop condition is met.
 
 The core idea:
 
