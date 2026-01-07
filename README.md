@@ -17,8 +17,6 @@ The core idea:
 - Use a PRD-style checklist (here: `plans/prd.json` with `passes: false/true`) so the agent knows what to do next and when it’s done
 - Stop early when the agent outputs `<promise>COMPLETE</promise>`
 
-> You should adjust the prompt/instructions in the scripts to suit your project and workflow.
-
 References:
 
 - Thread: https://x.com/mattpocockuk/status/2007924876548637089
@@ -29,6 +27,9 @@ You’ll find three helper scripts:
 - **`ralph.sh`** — runs Copilot in a loop for _N_ iterations (stops early if Copilot prints `<promise>COMPLETE</promise>`).
 - **`ralph-once.sh`** — runs Copilot exactly once (useful for quick testing / dry-runs).
 - **`test-coverage-ralph.sh`** — runs Copilot in a loop to iteratively improve test coverage (one meaningful test per iteration).
+
+
+> You should adjust the prompt/instructions in the scripts to suit your project and workflow.
 
 
 
