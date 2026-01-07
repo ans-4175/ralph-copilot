@@ -255,39 +255,46 @@ Adjust these to match your comfort level and CI/CD setup.
 
 Run Ralph in an isolated sandbox using a `git worktree` so you can delete everything afterwards.
 
-1. From the repo root, create a worktree on a new branch:
+1. Clone this repo and `cd` into it:
+  ```bash
+  git clone https://github.com/soderlind/ralph
+  cd ralph
+  ```
+
+2. From the repo root, create a worktree on a new branch:
   ```bash
   ROOT_DIR="$PWD"
   git worktree add "$ROOT_DIR/../ralph-demo" -b ralph-demo
   cd "$ROOT_DIR/../ralph-demo"
   ```
 
-2. (Optional) Confirm Copilot CLI is available:
+3. (Optional) Confirm Copilot CLI is available:
   ```bash
   copilot --version
   ```
 
-3. Run one iteration to validate everything works end-to-end:
+4. Run one iteration to validate everything works end-to-end:
   ```bash
   ./ralph-once.sh
   ```
 
-4. Run multiple iterations (adjust the number as needed):
+5. Run multiple iterations (adjust the number as needed):
   ```bash
   ./ralph.sh 10
   ```
 
-5. Inspect what happened:
+6. Inspect what happened:
   ```bash
   git --no-pager log --oneline --decorate -n 20
   cat progress.txt
   ```
 
-6. Clean up (removes the worktree folder and deletes the demo branch):
+7. Clean up (removes the worktree folder and deletes the demo branch):
   ```bash
   # IMPORTANT: run worktree commands against the same repo you created the worktree from.
   # Using `git -C "$ROOT_DIR" ...` avoids relying on `cd -` (which can change across shells).
 
+  cd "$ROOT_DIR"
   git -C "$ROOT_DIR" worktree list
   git -C "$ROOT_DIR" worktree remove "$ROOT_DIR/../ralph-demo" || true
 
