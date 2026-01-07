@@ -307,7 +307,6 @@ Run Ralph in an isolated sandbox using a `git worktree` so you can delete everyt
 
 ## Credits
 
-- Inspired by [Matt Pocock’s thread on the Ralph Wiggum technique](https://x.com/mattpocockuk/status/2007924876548637089).
 - Prompt in scripts: [Matt Pocock](https://github.com/mattpocock)
 
 ## License
