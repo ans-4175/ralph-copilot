@@ -20,9 +20,9 @@ The core idea:
 References:
 
 - Thread: https://x.com/mattpocockuk/status/2007924876548637089
-- Video: https://www.youtube.com/watch?v=_IK18goX4X8 ("Ship working code while you sleep with the Ralph Wiggum technique")
+- Video:  [Ship working code while you sleep with the Ralph Wiggum technique | Matt Pocock](https://www.youtube.com/watch?v=_IK18goX4X8)
 
-You’ll find two helper scripts:
+You’ll find three helper scripts:
 
 - **`ralph.sh`** — runs Copilot in a loop for _N_ iterations (stops early if Copilot prints `<promise>COMPLETE</promise>`).
 - **`ralph-once.sh`** — runs Copilot exactly once (useful for quick testing / dry-runs).
