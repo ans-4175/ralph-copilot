@@ -181,6 +181,41 @@ MODEL=claude-opus-4.5 ./ralph-once.sh
 ./ralph.sh 10
 ```
 
+### Usage with a custom prompt
+
+When using `--prompt`, you must also specify either `--allow-profile` or one or more `--allow-tools`.
+
+```bash
+./ralph.sh --prompt prompts/my-prompt.txt --allow-profile safe 10
+```
+
+Example: WordPress-oriented prompt (from `ralph-wp`), with explicit shell tools:
+
+```bash
+./ralph.sh --prompt prompts/wordpress-plugin-agent.txt --allow-profile safe \
+  --allow-tools 'shell(npx)' \
+  --allow-tools 'shell(composer)' \
+  --allow-tools 'shell(npm)' \
+  10
+```
+
+Add extra allowed tools (repeatable):
+
+```bash
+./ralph.sh --prompt prompts/my-prompt.txt --allow-profile safe \
+  --allow-tools write \
+  --allow-tools 'shell(git push)' \
+  10
+```
+
+Add extra denied tools (repeatable):
+
+```bash
+./ralph.sh --prompt prompts/my-prompt.txt --allow-profile dev \
+  --deny-tools 'shell(git commit)' \
+  10
+```
+
 ### How it prompts Copilot
 The prompt includes:
 - `@plans/prd.json`
@@ -200,6 +235,27 @@ The prompt includes:
 ./ralph-once.sh
 ```
 
+### Usage with a custom prompt
+
+```bash
+./ralph-once.sh --prompt prompts/my-prompt.txt --allow-profile locked
+```
+
+Or specify an explicit allowlist (repeatable):
+
+```bash
+./ralph-once.sh --prompt prompts/my-prompt.txt \
+  --allow-tools write \
+  --allow-tools 'shell(pnpm)'
+```
+
+You can also add extra denied tools (repeatable):
+
+```bash
+./ralph-once.sh --prompt prompts/my-prompt.txt --allow-profile dev \
+  --deny-tools 'shell(git commit)'
+```
+
 
 
 ## Notes on permissions / safety
@@ -213,6 +269,10 @@ Copilot CLI supports tool permission flags like:
 The scripts in this bundle:
 - enable non-interactive execution with `--allow-all-tools`
 - explicitly deny dangerous commands like `rm` and `git push`
+
+When using a custom prompt via `--prompt`, the scripts default to a conservative policy:
+- they require either `--allow-profile` or at least one `--allow-tools`
+- they never infer tool permissions from prompt file contents
 
 Adjust these to match your comfort level and CI/CD setup.
 
@@ -230,6 +290,14 @@ Adjust these to match your comfort level and CI/CD setup.
    ./ralph.sh 20
    ```
 4. Review `progress.txt` for a running log of changes and next steps.
+
+## Testing prompts
+
+This repo includes a small harness that runs each prompt in `prompts/` in its own git worktree and logs output to `test/log/`.
+
+```bash
+./test/run-prompts.sh
+```
 
 ## Demo
 
