@@ -22,6 +22,7 @@ References:
 
 - Thread: https://x.com/mattpocockuk/status/2007924876548637089
 - Video:  [Ship working code while you sleep with the Ralph Wiggum technique | Matt Pocock](https://www.youtube.com/watch?v=_IK18goX4X8)
+- [11 Tips For AI Coding With Ralph Wiggum](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum)
 
 You’ll find two helper scripts:
 
