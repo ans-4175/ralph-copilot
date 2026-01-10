@@ -236,9 +236,6 @@ Logs: `test/log/`
 
 ---
 
-## Credits
-
-Prompt technique: [Matt Pocock](https://github.com/mattpocock)
 
 ## License
 

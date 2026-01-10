@@ -25,6 +25,8 @@ Runs exactly one iteration (good for testing your tool permissions and prompt wo
 Default prompt + PRD:
 Runs the standard workflow: attach your PRD and let Ralph iterate safely (write + limited shell).
 
+Credit: [Ship working code while you sleep (video)](https://www.youtube.com/watch?v=_IK18goX4X8)
+
 ```bash
 ./ralph.sh --prompt prompts/default.txt --prd plans/prd.json --allow-profile safe 10
 ```
