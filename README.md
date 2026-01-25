@@ -51,6 +51,7 @@ https://github.com/user-attachments/assets/28206ee1-8dad-4871-aef5-1a9f24625dba
 - [Ship working code while you sleep (video)](https://www.youtube.com/watch?v=_IK18goX4X8)
 - [11 Tips For AI Coding With Ralph Wiggum](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum)
 - [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+- [Ralph Loop Implementation (Python reference)](https://gist.github.com/soderlind/ca83ba5417e3d9e25b68c7bdc644832c) — Detailed example of state management, test orchestration, and PRD-driven iteration
 
 ---
 
@@ -223,6 +224,59 @@ Run all prompts in isolated worktrees:
 ```
 
 Logs: `test/log/`
+
+---
+
+## PRD-Driven State Management
+
+Ralph uses a **PRD-first architecture** inspired by the [Ralph Loop reference implementation](https://gist.github.com/soderlind/ca83ba5417e3d9e25b68c7bdc644832c):
+
+### State Persistence
+
+Three files track the workflow:
+
+| File | Purpose |
+|------|---------|
+| `plans/prd.json` | **Source of truth** — your requirements, marked `passes: true/false` |
+| `progress.txt` | **Append-only log** — what was built, why, and what failed |
+| `.ralph/state.json` | **Resume metadata** — iteration count, last run, PRD hash |
+
+### Feature Lifecycle
+
+Each iteration:
+
+1. **Read** — Load PRD, check which features are incomplete (`passes: false`)
+2. **Pick** — Select highest-priority incomplete feature by ID and priority
+3. **Implement** — Copilot builds the feature based on `description`, `details`, and `steps`
+4. **Test** — Run commands from `prd.json` feature's `tests` array (if provided)
+5. **Update** — Mark feature `passes: true`, append notes to progress.txt
+6. **Commit** — Auto-commit with feature ID in message (e.g., `[arch-001] Setup TypeScript`)
+7. **Repeat** — Loop until `passes: true` for all features or max-iterations reached
+
+### Example: Test Inheritance
+
+Features with `dependsOn` ensure previous work stays validated:
+
+```json
+{
+  "id": "auth-001",
+  "steps": [
+    "Create login page",
+    "Build /api/auth/login",
+    "Ensure: pnpm test passes (runs arch-001 + data-001 + auth-001 tests)"
+  ],
+  "dependsOn": ["arch-001", "data-001"]
+}
+```
+
+When Ralph implements `auth-001`, it runs **all** tests — ensuring architecture and data models still work.
+
+### Why This Matters
+
+- **No lost context** — progress.txt keeps human-readable transcript
+- **Resume-safe** — state.json lets you pause and continue later
+- **Test integrity** — old tests keep passing as new features layer on
+- **Clear git history** — commits reference PRD feature IDs
 
 ---
 
