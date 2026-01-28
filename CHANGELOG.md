@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-01-28
+
+### Changed
+- Moved default `progress.txt` location from repository root to `.ralph/progress.txt`
+- Consolidated state files under `.ralph/` directory for better project organization
+
+### Breaking Changes
+- Scripts with hardcoded paths to `progress.txt` at repository root will need updating
+- Use the `--progress` flag to override the default location if needed
+
 ## [2.0.0] - 2026-01-24
 
 ### Added
