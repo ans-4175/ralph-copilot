@@ -1,205 +1,249 @@
-# Ralph (Copilot CLI runner)
+# Ralph — Autonomous Feature Builder
 
-> Let AI implement your features while you sleep.
+> Let AI implement your PRD. Ralph runs GitHub Copilot CLI in a loop, one feature at a time.
 
-Ralph runs **GitHub Copilot CLI** in a loop, implementing one feature at a time until your PRD is complete.
+**What:** Ralph is a Python automation runner that chains Copilot iterations until your product requirements are complete.
 
-[Quick Start](#quick-start) · [How It Works](#how-it-works) · [Configuration](#configuration) · [Command Reference](#command-reference) · [Demo](#demo)
+**Why use Ralph:**
+- ✅ Automate repetitive implementation work — define features in JSON, Ralph builds them
+- ✅ Test-driven feedback loop — each feature runs tests and validates before commit
+- ✅ Clear progress tracking — human-readable log + git commits per feature
+- ✅ Resume-safe — pause and resume workflows without context loss
+- ✅ Works with any codebase — respects your test commands and project structure
 
+**Key difference from other AI coding tools:**
+Ralph is **iterative and PRD-aware**. It treats your requirements as a state machine: pick incomplete items, implement one, verify with tests, mark complete, repeat. This creates reliable incremental progress, not one-shot code generation.
+
+[Quick Start](#quick-start) · [How to Use](#how-to-use) · [Technical Details](#technical-details) · [CLI Reference](#cli-reference) · [Learn More](#learn-more)
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone and enter the repo
-git clone https://github.com/soderlind/ralph
-cd ralph
+# Clone and setup
+git clone https://github.com/soderlind/ralph && cd ralph
 
-# Add your work items to plans/prd.json
+# Define work items in plans/prd.json (JSON array with description, steps, passes: false)
 
-# Test with a single iteration
+# Test one iteration
 ./ralph.py --allow-profile safe --max-iterations 1
 
-# Run multiple iterations (iterative mode - RECOMMENDED)
+# Run iteratively (RECOMMENDED)
 ./ralph.py --allow-profile safe --allow-dirty --max-iterations 10
 ```
 
-Check `progress.txt` for a log of what was done.
+Check `progress.txt` for detailed logs. When all features pass, Ralph stops automatically.
 
 ---
 
 ## How It Works
 
-Ralph implements the ["Ralph Wiggum" technique](https://www.humanlayer.dev/blog/brief-history-of-ralph):
+Ralph implements the [**Ralph Wiggum technique**](https://www.humanlayer.dev/blog/brief-history-of-ralph):
 
-1. **Read** — Copilot reads your PRD (if attached) and progress file
-2. **Pick** — It chooses the highest-priority incomplete item
-3. **Implement** — It writes code for that one feature
-4. **Verify** — It runs your tests (`pnpm typecheck`, `pnpm test`)
-5. **Update** — It marks the item complete and logs progress
-6. **Commit** — It commits the changes
-7. **Repeat** — Until all items pass or it signals completion
+1. **Read** — Copilot reads your PRD and progress file
+2. **Pick** — Selects the first incomplete feature (`passes: false`)
+3. **Implement** — Writes code based on description + steps
+4. **Verify** — Runs tests to validate the feature works
+5. **Update** — Marks feature `passes: true`, appends to progress.txt
+6. **Commit** — Auto-commits with feature ID in message
+7. **Repeat** — Loops until all features pass or max-iterations reached
 
-### Learn More
+**Why this works:**
+- Each iteration builds on the last — Copilot sees what was done before
+- Tests keep old features from breaking — regression prevention built-in
+- PRD is your source of truth — features stay tracked, progress is visible
 
-- [Matt Pocock's thread](https://x.com/mattpocockuk/status/2007924876548637089)
-- [Ship working code while you sleep (video)](https://www.youtube.com/watch?v=_IK18goX4X8)
-- [11 Tips For AI Coding With Ralph Wiggum](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
-- [Ralph Loop Implementation (Python reference)](https://gist.github.com/soderlind/ca83ba5417e3d9e25b68c7bdc644832c) — Detailed example of state management, test orchestration, and PRD-driven iteration
+Learn more: [Matt Pocock's Thread](https://x.com/mattpocockuk/status/2007924876548637089) · [Video](https://www.youtube.com/watch?v=_IK18goX4X8) · [Anthropic's Guide](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+
+See **Learn More** section for additional resources.
 
 ---
 
-## Configuration
+## How to Use
 
-### Choose a Model
+### 1. Define Your PRD
 
-Set the `MODEL` environment variable (default: `gpt-5.2`):
-
-```bash
-MODEL=claude-opus-4.5 ./ralph.py --allow-profile safe --max-iterations 10
-```
-
-### Define Your Work Items
-
-Create `plans/prd.json` with your requirements:
+Create `plans/prd.json`:
 
 ```json
 [
   {
+    "id": "feature-001",
     "category": "functional",
-    "description": "User can send a message and see it in the conversation",
-    "steps": ["Open chat", "Type message", "Click Send", "Verify it appears"],
+    "description": "User can send messages",
+    "details": "Build chat input field with validation",
+    "steps": ["Create input component", "Add validation", "Wire to API"],
+    "tests": ["pnpm test -- chat"],
     "passes": false
   }
 ]
 ```
 
-| Field         | Description                                |
-|---------------|--------------------------------------------|
-| `category`    | `"functional"`, `"ui"`, or custom          |
-| `description` | One-line summary                           |
-| `steps`       | How to verify it works                     |
-| `passes`      | `false` → `true` when complete             |
+| Field | Required | Purpose |
+|-------|----------|---------|
+| `id` | Yes | Unique identifier for commits and tracking |
+| `description` | Yes | One-line feature summary for Copilot |
+| `details` | No | Technical context (optional) |
+| `steps` | Yes | Verification steps or how to validate |
+| `tests` | No | Commands to run (default: `pnpm test`) |
+| `passes` | Yes | `false` → `true` when complete |
+| `dependsOn` | No | Array of feature IDs that must pass first (see Feature Dependencies below) |
 
-See the [`plans/`](plans/) folder for more context.
-
-### Use Custom Prompts
-
-Prompts can be customized via `--prompt-prefix`:
+### 2. Run Ralph
 
 ```bash
+# Single iteration (safest first run)
+./ralph.py --allow-profile safe --max-iterations 1
+
+# Iterative mode (keeps running, auto-commits)
+./ralph.py --allow-profile safe --allow-dirty --max-iterations 10
+
+# Custom model
+MODEL=claude-opus-4.5 ./ralph.py --allow-profile safe --max-iterations 10
+
+# Custom prompt
 ./ralph.py --prompt-prefix prompts/my-prompt.txt --allow-profile safe --max-iterations 10
 ```
 
-> **Note:** Custom tools require `--allow-profile` or `--allow-tools`.
+### 3. Monitor Progress
+
+Ralph logs to two files:
+- `progress.txt` — human-readable transcript (append-only)
+- `.ralph/state.json` — iteration metadata (for resuming)
+
+Each feature gets a git commit tagged with its ID.
 
 ---
 
-## Command Reference
+## Technical Details
 
-### `ralph.py` — Looped Runner
+### State Management
 
-Runs Copilot up to N iterations. Stops early on `<promise>COMPLETE</promise>`.
+Ralph uses a **PRD-first architecture** with 3 key files:
 
-```bash
-./ralph.py [options]
+| File | Role |
+|------|------|
+| `plans/prd.json` | **Source of truth** — requirements with `passes: true/false` |
+| `progress.txt` | **Append-only log** — what was done, why, and errors |
+| `.ralph/state.json` | **Resume metadata** — iteration count, PRD hash, last run |
+
+This ensures:
+- ✅ No context loss (progress.txt is human-readable)
+- ✅ Pause & resume (state.json tracks progress)
+- ✅ Test integrity (all tests re-run each iteration)
+- ✅ Clear git history (commits reference feature IDs)
+
+**How it works:** Ralph reads `plans/prd.json`, picks the first incomplete feature, implements it, runs tests, marks it complete, commits, then repeats. See **How It Works** section above.
+
+### Feature Dependencies
+
+Use `dependsOn` to ensure dependent features re-test when base features change:
+
+```json
+{
+  "id": "auth-001",
+  "description": "Login endpoint",
+  "dependsOn": ["api-setup-001"],
+  "tests": ["pnpm test", "curl http://localhost:3000/api/login"]
+}
 ```
 
-**Examples:**
+When `auth-001` is tested, Ralph ensures all dependencies still pass.
+
+---
+
+## CLI Reference
+
+### `./ralph.py` — Main Runner
 
 ```bash
-./ralph.py --allow-profile safe --max-iterations 10
-./ralph.py --allow-profile safe --allow-dirty --max-iterations 10
-./ralph.py --once --allow-profile safe
-./ralph.py --prompt-prefix prompts/custom.txt --allow-profile safe --max-iterations 10
-MODEL=claude-opus-4.5 ./ralph.py --allow-profile safe --max-iterations 10
+./ralph.py [OPTIONS]
 ```
 
-### Options
+**Options:**
 
-| Option                   | Description                          | Default               |
-|--------------------------|--------------------------------------|-----------------------|
-| `--once`                 | Single iteration mode                | Loop mode             |
-| `--allow-dirty`          | Allow uncommitted changes (iterative)| Clean repo enforced   |
-| `--prompt-prefix <file>` | Load custom prompt prefix            | Built-in prompt       |
-| `--prd <file>`           | Path to PRD JSON file                | `plans/prd.json`      |
-| `--max-iterations <n>`   | Maximum iterations (loop mode)       | 10                    |
-| `--allow-profile <name>` | Permission profile (see below)       | —                     |
-| `--allow-tools <spec>`   | Allow specific tool (repeatable)     | —                     |
-| `--deny-tools <spec>`    | Deny specific tool (repeatable)      | —                     |
-| `-h, --help`             | Show help                            | —                     |
+| Option | Type | Default | Purpose |
+|--------|------|---------|---------|
+| `--once` | flag | Loop mode | Run one iteration only |
+| `--allow-dirty` | flag | Off | Allow uncommitted changes (required for iterative mode) |
+| `--allow-profile` | `safe\|dev\|locked` | — | Permission preset (required) |
+| `--allow-tools` | spec | — | Allow specific tool (repeatable, replaces profile) |
+| `--deny-tools` | spec | — | Deny specific tool (repeatable) |
+| `--prompt-prefix` | file | Built-in | Custom system prompt |
+| `--prd` | file | `plans/prd.json` | Path to PRD JSON |
+| `--max-iterations` | N | 10 | Loop limit |
+| `-h, --help` | flag | — | Show help |
 
 **Environment:**
 
-| Variable | Description        | Default   |
-|----------|--------------------|-----------|
-| `MODEL`  | Model to use       | `gpt-5.2` |
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `MODEL` | `gpt-5.2` | AI model to use (e.g., `claude-opus-4.5`) |
 
 ### Permission Profiles
 
-| Profile  | Allows                                 | Use Case                     |
-|----------|----------------------------------------|------------------------------|
-| `locked` | `write` only                           | File edits, no shell         |
-| `safe`   | `write`, `shell(pnpm:*)`, `shell(git:*)` | Normal dev workflow        |
-| `dev`    | All tools                              | Broad shell access           |
+| Profile | Allows | Best For |
+|---------|--------|----------|
+| `locked` | `write` only | File edits, no shell commands |
+| `safe` | `write`, `shell(pnpm:*)`, `shell(git:*)` | **Most common** — npm scripts + git |
+| `dev` | All tools except `shell(rm)` and `shell(git push)` | Broad shell access (less safe) |
 
-**Always denied:** `shell(rm)`, `shell(git push)`
-
-**Custom tools:** If you pass `--allow-tools`, it replaces the profile defaults:
+Custom tools replace profile defaults:
 
 ```bash
-./ralph.py --allow-tools write --allow-tools 'shell(composer:*)' --allow-profile safe --max-iterations 10
+./ralph.py --allow-tools write --allow-tools 'shell(composer:*)' --allow-profile safe
 ```
+
+Ralph always denies: `shell(rm)`, `shell(git push)` (hardcoded safety).
 
 ---
 
-## Demo
+## Advanced Examples
 
-Try Ralph in a safe sandbox:
+### Demo in Sandbox
 
 ```bash
-# Setup
 git clone https://github.com/soderlind/ralph && cd ralph
-git worktree add ../ralph-demo -b ralph-demo
-cd ../ralph-demo
+git worktree add ../ralph-demo -b ralph-demo && cd ../ralph-demo
 
-# Run
 ./ralph.py --allow-profile safe --max-iterations 1
 ./ralph.py --allow-profile safe --allow-dirty --max-iterations 10
 
-# Inspect
-git log --oneline -20
-cat progress.txt
+git log --oneline -10 && cat progress.txt
 
-# Cleanup
 cd .. && git worktree remove ralph-demo && git branch -D ralph-demo
 ```
 
----
+### Test Harness
 
-## Project Structure
-
-```
-.
-├── plans/prd.json        # Your work items
-├── prompts/default.txt   # Example prompt
-├── progress.txt          # Running log
-├── ralph.py              # Main runner (Python)
-├── .ralph/state.json     # Iteration state
-└── test/                 # Test harness
-```
-
----
-
-## Install Copilot CLI
+Run all prompts in isolated worktrees to test changes:
 
 ```bash
-# Check version
-copilot --version
+./test/run-prompts.sh
+# Logs in test/log/
+```
 
-# Homebrew
+---
+
+## Learn More
+
+- [Ralph Wiggum Technique](https://www.humanlayer.dev/blog/brief-history-of-ralph) — Origins and philosophy
+- [Matt Pocock's Thread](https://x.com/mattpocockuk/status/2007924876548637089) — Why iterative agents work
+- [Ship Working Code While You Sleep (video)](https://www.youtube.com/watch?v=_IK18goX4X8)
+- [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — Anthropic's guide
+- [Ralph Loop Reference](https://gist.github.com/soderlind/ca83ba5417e3d9e25b68c7bdc644832c) — Detailed implementation example
+
+---
+
+## Installation
+
+### Install Copilot CLI
+
+Ralph requires the Copilot CLI:
+
+```bash
+# Homebrew (macOS/Linux)
 brew update && brew upgrade copilot
 
 # npm
@@ -207,103 +251,26 @@ npm i -g @github/copilot
 
 # Windows
 winget upgrade GitHub.Copilot
+
+# Verify
+copilot --version
+```
+
+### Project Structure
+
+```
+.
+├── ralph.py                 # Main runner
+├── plans/prd.json          # Your requirements
+├── prompts/default.txt     # Default system prompt
+├── progress.txt            # Running log (generated)
+├── .ralph/state.json       # State metadata (generated)
+└── test/
+    ├── run-prompts.sh      # Test harness
+    └── log/                # Test logs (generated)
 ```
 
 ---
-
-## Testing Prompts
-
-Run all prompts in isolated worktrees:
-
-```bash
-./test/run-prompts.sh
-```
-
-Logs: `test/log/`
-
----
-
-## PRD-Driven State Management
-
-Ralph uses a **PRD-first architecture** inspired by the [Ralph Loop reference implementation](https://gist.github.com/soderlind/ca83ba5417e3d9e25b68c7bdc644832c):
-
-### State Persistence
-
-Three files track the workflow:
-
-| File | Purpose |
-|------|---------|
-| `plans/prd.json` | **Source of truth** — your requirements, marked `passes: true/false` |
-| `progress.txt` | **Append-only log** — what was built, why, and what failed |
-| `.ralph/state.json` | **Resume metadata** — iteration count, last run, PRD hash |
-
-### Feature Lifecycle
-
-Each iteration:
-
-1. **Read** — Load PRD, check which features are incomplete (`passes: false`)
-2. **Pick** — Select highest-priority incomplete feature by ID and priority
-3. **Implement** — Copilot builds the feature based on `description`, `details`, and `steps`
-4. **Test** — Run commands from `prd.json` feature's `tests` array (if provided)
-5. **Update** — Mark feature `passes: true`, append notes to progress.txt
-6. **Commit** — Auto-commit with feature ID in message (e.g., `[arch-001] Setup TypeScript`)
-7. **Repeat** — Loop until `passes: true` for all features or max-iterations reached
-
-### Example: Test Inheritance
-
-Features with `dependsOn` ensure previous work stays validated:
-
-```json
-{
-  "id": "auth-001",
-  "steps": [
-    "Create login page",
-    "Build /api/auth/login",
-    "Ensure: pnpm test passes (runs arch-001 + data-001 + auth-001 tests)"
-  ],
-  "dependsOn": ["arch-001", "data-001"]
-}
-```
-
-When Ralph implements `auth-001`, it runs **all** tests — ensuring architecture and data models still work.
-
-### Why This Matters
-
-- **No lost context** — progress.txt keeps human-readable transcript
-- **Resume-safe** — state.json lets you pause and continue later
-- **Test integrity** — old tests keep passing as new features layer on
-- **Clear git history** — commits reference PRD feature IDs
-
----
-
-## Copilot CLI Notes
-
-Ralph is a Python-based wrapper around the Copilot CLI. The important flags it relies on are:
-
-### Context attachment
-
-Ralph passes context to Copilot via inline prompts. Ralph builds context per iteration that typically contains:
-
-- `progress.txt` (always)
-- PRD JSON (only if you pass `--prd <file>`)
-- Custom prompt prefix (if `--prompt-prefix <file>` is provided)
-
-This keeps the agent's input structured and clean.
-
-### Tool permissions (`--allow-*` / `--deny-*`)
-
-Ralph controls what Copilot is allowed to do by passing tool permission flags:
-
-- `--allow-profile <safe|dev|locked>`: convenience presets implemented by Ralph.
-- `--allow-tools <spec>`: allow a specific tool spec (repeatable). When you use this, it replaces the profile defaults.
-- `--deny-tools <spec>`: deny a specific tool spec (repeatable).
-
-For shell tools, prefer the pattern form `shell(cmd:*)` (for example `shell(git:*)`).
-
-Ralph always denies a small set of dangerous commands (currently `shell(rm)` and `shell(git push)`).
-
-
-
 
 ## License
 
