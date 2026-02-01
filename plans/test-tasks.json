@@ -1,0 +1,105 @@
+[
+  {
+    "id": "TASK-001",
+    "category": "documentation",
+    "description": "Create TEST.md file with basic content",
+    "details": "Create a simple markdown file to document test results",
+    "steps": [
+      "Create plans/TEST.md file",
+      "Add title: Test Results",
+      "Add date section",
+      "Add empty test cases section"
+    ],
+    "acceptance": [
+      "TEST.md exists in plans/ directory",
+      "File contains markdown formatted content",
+      "All sections are present"
+    ],
+    "dependencies": [],
+    "priority": 1,
+    "status": "todo"
+  },
+  {
+    "id": "TASK-002",
+    "category": "documentation",
+    "description": "Create NOTES.md file",
+    "details": "Create a markdown file for keeping development notes",
+    "steps": [
+      "Create plans/NOTES.md file",
+      "Add title: Development Notes",
+      "Add introduction paragraph",
+      "Add TODO list section"
+    ],
+    "acceptance": [
+      "NOTES.md exists in plans/ directory",
+      "File contains markdown formatted content",
+      "TODO list section is present"
+    ],
+    "dependencies": [],
+    "priority": 1,
+    "status": "todo"
+  },
+  {
+    "id": "TASK-003",
+    "category": "documentation",
+    "description": "Update TEST.md with test case results",
+    "details": "Add actual test case results to TEST.md file",
+    "steps": [
+      "Open plans/TEST.md",
+      "Add Test Case 1: BRD to PRD conversion",
+      "Add Test Case 2: PRD to tasks breakdown",
+      "Add status (pass/fail) for each test case"
+    ],
+    "acceptance": [
+      "TEST.md contains at least 2 test cases",
+      "Each test case has status",
+      "Content is properly formatted"
+    ],
+    "dependencies": ["TASK-001"],
+    "priority": 2,
+    "status": "todo"
+  },
+  {
+    "id": "TASK-004",
+    "category": "documentation",
+    "description": "Update NOTES.md with implementation notes",
+    "details": "Add implementation notes and observations to NOTES.md",
+    "steps": [
+      "Open plans/NOTES.md",
+      "Add Implementation section",
+      "Add 3-5 bullet points about implementation",
+      "Add Known Issues section"
+    ],
+    "acceptance": [
+      "NOTES.md contains Implementation section",
+      "At least 3 bullet points are present",
+      "Known Issues section exists"
+    ],
+    "dependencies": ["TASK-002"],
+    "priority": 2,
+    "status": "todo"
+  },
+  {
+    "id": "TASK-005",
+    "category": "documentation",
+    "description": "Edit TEST.md and NOTES.md with new journal entry",
+    "details": "Add a new journal section to both TEST.md and NOTES.md files",
+    "steps": [
+      "Open plans/TEST.md",
+      "Add Journal section at the end",
+      "Add journal entry with date and observations",
+      "Open plans/NOTES.md",
+      "Add Journal section at the end",
+      "Add journal entry with date and key learnings"
+    ],
+    "acceptance": [
+      "TEST.md contains new Journal section",
+      "NOTES.md contains new Journal section",
+      "Both journal entries have dates",
+      "Content is properly formatted"
+    ],
+    "dependencies": ["TASK-003", "TASK-004"],
+    "priority": 3,
+    "status": "todo"
+  }
+]

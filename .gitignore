@@ -1,14 +1,43 @@
-# Prompt test harness artifacts
-/test/log/**
-!/test/log/.gitkeep
-/test/worktrees/**
-/test/tmp-wt/**
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
 
-# Local Copilot / runner temp context files
-.ctx.*
-.ralph-context.*
-.ralph-ctx.*
-.ctx
+# Ralph SDLC
+.ralph/
+progress.txt
 
-# Ad-hoc temp files from manual runs
-/tmp-copilot-test.txt
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Skills
+.copilot/skills/
+.claude/skills/
+
+# Logs
+docs/implementation-log.md
+docs/cleanup-log.md
+
+# Archives
+plans/done/
+archive/tasks/
+
+# Temp
+*.tmp
+*.bak

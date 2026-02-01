@@ -1,78 +1,70 @@
-# Changelog
+# CHANGELOG
 
-All notable changes to this project will be documented in this file.
+All notable changes to the Ralph Copilot project are documented here.
 
-## [2.0.1] - 2026-01-28
-
-### Changed
-- Moved default `progress.txt` location from repository root to `.ralph/progress.txt`
-- Consolidated state files under `.ralph/` directory for better project organization
-
-### Breaking Changes
-- Scripts with hardcoded paths to `progress.txt` at repository root will need updating
-- Use the `--progress` flag to override the default location if needed
-
-## [2.0.0] - 2026-01-24
+## [2026-01-31] - Task Review and Cleanup
 
 ### Added
-- `ralph.py` - New Python implementation replacing bash scripts
-- `--once` flag for single iteration mode
-- `--allow-dirty` flag for iterative workflow with uncommitted changes
-- `--prompt-prefix` flag for custom instructions
-- `--prd` flag for custom PRD path
-- State persistence via `.ralph/state.json`
-- Story-based iteration (one story at a time)
-- Better error handling and logging
-- Comprehensive documentation: `RALPH.md`, `RALPH_FEATURES.md`, `RALPH_EXAMPLES.md`, `RALPH_MIGRATION.md`
 
-### Removed
-- `ralph.sh` - Replaced by `ralph.py`
-- `ralph-once.sh` - Replaced by `ralph.py --once`
-- `RALPH_DEPRECATED_SCRIPTS.md` - Documentation of removed scripts
+- **Implementation Log** (`docs/implementation-log.md`): Comprehensive documentation of all completed Ralph tasks (TASK-001 through TASK-005) with detailed implementation summaries
+- **Cleanup Log** (`docs/cleanup-log.md`): Record of archived tasks and cleanup operations
+- **Archive Structure**: Organized archive directory for completed tasks at `archive/tasks/TASK-{ID}/`
 
-### Fixed
-- Exit status 1 bug - Copilot now executes properly
-- Prompt passing - Uses inline text instead of file references
-- Streaming output - See Copilot work in real-time
+### Cleanup Operations
 
-### Changed
-- Migrated from bash to Python 3.10+ for cleaner implementation
-- Auto-commit per story implementation
-- Dynamic prompt building from PRD
-- Proper test enforcement
+- Each task documented in `archive/tasks/TASK-{ID}/README.md`
+- Implementation summaries appended to `docs/implementation-log.md`
+- Git worktrees cleaned up (1 worktree deleted)
+- All tasks deleted from Vibe-Kanban project
+- Complete audit trail maintained in `docs/cleanup-log.md`
 
-## [1.1.0] - 2026-01-12
+### Technical Details
 
-### Added
-- `--skill <a[,b,...]>` support in `ralph.sh` and `ralph-once.sh` (prepends `skills/<name>/SKILL.md` into the attached context).
-- `--only <prompt1[,prompt2...]>` filter in `test/run-prompts.sh` to run selected prompt tests.
-- Vendored WordPress skills under `test/skills/` for the harness:
+- **Git Worktrees Deleted**: 1 (TASK-005 workspace)
+- **Vibe-Kanban Tasks Deleted**: 5 (TASK-001 through TASK-005)
+- **Archive Path**: `archive/tasks/`
+- **Safety Checks**: Double-verified (implementation-log.md + 'done' status)
 
-  - `wp-plugin-development`
-  - `wp-project-triage`
+---
 
-### Fixed
-- `test/run-prompts.sh`: WordPress skill staging now copies from `$ROOT/test/skills/...` (so it works inside per-prompt worktrees).
-- `test/run-prompts.sh`: WordPress assertions/skill injection now match `wordpress-plugin-agent.txt` consistently.
+## [2026-01-31] - Ralph Prompt Review Prompt Update
 
 ### Changed
-- `test/run-prompts.sh`: WordPress prompt test now stages those vendored skills into a top-level `skills/` folder inside the worktree and injects the WP plugin skill into the context attachment.
 
-## [1.0.0] - 2026-01-10
+- Updated `ralph review` prompt to explicitly mention cleanup behavior
+- Prompt now includes step "7. Trigger @ralph-cleanup-agent to archive reviewed tasks" when auto-cleanup is enabled
+- Context section shows `Auto-cleanup: Yes/No` to clarify user intent
 
-### Added
-- `CHANGELOG.md`.
-- `RALPH_VERSION="1.0.0"` in the runner scripts.
-- `prompts/pest-coverage.txt`.
-- Harness support for running `pest-coverage.txt` without a PRD.
+### Impact
+
+- Users can now see exactly what will happen before copying the prompt
+- The prompt text matches the actual behavior
+- Task format filtering (TASK-XXX:) only processes properly formatted tasks
+
+---
+
+## [2026-01-31] - Ralph-Run Skill Repository Resolution
 
 ### Changed
-- `ralph.sh` / `ralph-once.sh`: `--prompt` is required (no implicit default prompt).
-- `ralph.sh` / `ralph-once.sh`: `--prd` is optional and only attached when explicitly provided.
-- Normalized shell tool allow/deny specs to the pattern form `shell(cmd:*)`.
-- Prevented emitting empty tool spec arguments (avoids `--allow-tool ''` / `--deny-tool ''`).
-- `test/run-prompts.sh`: runs prompts in isolated git worktrees and captures Copilot output via pseudo-TTY transcript.
 
-### Documentation
-- Updated README usage/examples to reflect `--prompt` required and `--prd` optional.
-- Added per-prompt examples in `prompts/README.md`.
+- Updated **Step 0** of ralph-run skill to resolve repository ID upfront
+- Added `vibe_kanban-list_repos` call immediately after project ID resolution
+- Eliminates "missing field repo_id" errors in workspace session creation
+
+### Impact
+
+- Cleaner workflow: project_id + repo_id resolved in Step 0
+- No more repository lookup errors when starting workspaces
+- More efficient MCP tool usage
+
+---
+
+## [Earlier] - Prompt Generator Mode Implementation
+
+See `CHANGELOG-PROMPT-MODE.md` for detailed implementation history of the prompt generator feature, including:
+- Dual-mode architecture (prompt vs execute)
+- Git branch auto-detection
+- Task format filtering (TASK-XXX:)
+- Skill metadata standardization
+
+---
