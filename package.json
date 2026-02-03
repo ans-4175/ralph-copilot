@@ -4,7 +4,7 @@
   "description": "Ralph: SDLC Wrapper for Product Development - Transform BRD → PRD → Tasks → Execution",
   "main": "ralph.py",
   "scripts": {
-    "run-vibe-kanban": "npx -y vibe-kanban@latest",
+    "run-vibe-kanban": "PORT=56407 npx -y vibe-kanban@latest",
     "stop-vibe-kanban": "bash ./scripts/stop-vibe-kanban.sh",
     "cleanup-worktrees": "bash ./scripts/cleanup-worktrees.sh",
     "cleanup-worktrees:force": "bash ./scripts/cleanup-worktrees.sh -f",
