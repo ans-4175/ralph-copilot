@@ -61,7 +61,7 @@ Before using Ralph, ensure you have:
 
 4. **Vibe-Kanban (Local Setup)**
    - Run locally: `npx vibe-kanban` or `npm run vibe-kanban`
-   - Opens at http://localhost:3000
+   - Opens at designated port
    - Create a project (you'll need the project name)
    - MCP server configured (see Setup Step 2)
 

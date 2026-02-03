@@ -288,7 +288,7 @@ ralph.py --execute run
 - Custom skill templates
 - Better error recovery
 - Metrics dashboard
-- All [IDEAS.md](IDEAS.md) implemented
+- All [IDEAS.md](../IDEAS.md) implemented
 
 ### Long Term
 - Integration with design tools
